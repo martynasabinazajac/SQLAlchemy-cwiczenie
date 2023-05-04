@@ -1,65 +1,14 @@
 import csv
-import sqlite3
-from sqlite3 import Error
-from sqlalchemy import create_engine, Table, Column, Integer, MetaData, String
+import pandas as pd
+from sqlalchemy import create_engine, Table, Column, Integer, MetaData, String, Date, Float
 
 # 1. Pobranie csv i przygotowanied anych z pliku:
-
-
-# pobranie danych z pliku csv
-def pobrranie_csv(plikcsv, delimeter=","):
-    file = open(plikcsv, "r")
-    dataframe = {}
-    headers = file.readline().replace("\n", "").split(delimeter)
-    for line in file:
-        linedata = line.replace("\n", "").split(delimeter)
-        row = {}
-        for h in range(len(headers)):
-            if h in range(len(linedata)):
-                row[headers[h]] = linedata[h]
-            else:
-                row[headers[h]] = "null"
-        dataframe[linedata[0]] = row
-    file.close()
-    return dataframe
-
-    # pobranie kluczy i wartości potrzebnych do stworzenia tabeli:
-
-
-def pobranie_danych(data):
-    lists = []
-    for l in data:
-        headers_list = []
-        for h in data[l].keys():
-            headers_list.append(h)
-    lists.append(headers_list)
-    for r in data.values():
-        lists.append(r)
-    return lists
-
-
-# Krok 2 Utworzenie bazy gdzie będa trafiać dane:
-
-
-# utworzenie bazy
-def create_connection(db_file):
-    """create a database connection to the SQLite database
-        specified by db_file
-    :param db_file: database file
-    :return: Connection object or None
-    """
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-        return conn
-    except Error as e:
-        print(e)
-
-    return conn
-
+def pobieranie_pandas(plik):
+    df=pd.read_csv(plik)
+    df=df.to_dict('records')
+    return df
 
 # Krok 3 Dodanie danych z csv do tabel
-
 
 # dodanie danych do tabel
 def dodanie_danych_do_tabel(tabela, dane):
@@ -71,20 +20,11 @@ def dodanie_danych_do_tabel(tabela, dane):
 
 if __name__ == "__main__":
     # pobranie danych z csv
-    clean_measure = pobrranie_csv("clean_measure.csv", delimeter=",")
-    clean_station = pobrranie_csv("clean_stations.csv", delimeter=",")
+    clean_measure_data=pobieranie_pandas('clean_measure.csv')
+    clean_station_data=pobieranie_pandas('clean_stations.csv')
+    print(clean_measure_data, clean_station_data)
 
-    # pobranie nazw kluczy i wartości
-    clean_measure_data = pobranie_danych(clean_measure)
-    clean_station_data = pobranie_danych(clean_station)
-    print(clean_measure_data[0:], clean_station_data[0])
-
-    # utworzenie bazy (piiku, gdzie będa wzucane dane)
-    db_file = "alchemysqlćwiczenia.db"
-    conn = create_connection(db_file)
-    conn.close()
-
-    # połaczenie i utworzenie tabel za pomocą sql alchemy
+    # Krok 2 połaczenie i utworzenie tabel za pomocą sql alchemy
     engine = create_engine("sqlite:///alchemysqlćwiczenia.db")
 
     meta = MetaData()
@@ -92,19 +32,20 @@ if __name__ == "__main__":
     measure = Table(
         "clean_measure",
         meta,
-        Column("station", String, primary_key=True),
+        Column("id", Integer, primary_key=True),
+        Column("station", String),
         Column("date", String),
-        Column("precip", String),
-        Column("tobs", String),
+        Column("precip", Float),
+        Column("tobs", Integer),
     )
 
     station = Table(
         "clean_station",
         meta,
         Column("station", String, primary_key=True),
-        Column("latitude", String),
-        Column("longitude", String),
-        Column("elevation", String),
+        Column("latitude", Float),
+        Column("longitude", Float),
+        Column("elevation", Float),
         Column("name", String),
         Column("country", String),
         Column("state", String),
@@ -114,8 +55,8 @@ if __name__ == "__main__":
     print(engine.table_names())
 
     # dodanie danych do tabe- instert
-    dodanie_danych_do_tabel(measure, clean_measure_data[1:])
-    dodanie_danych_do_tabel(station, clean_station_data[1:])
+    dodanie_danych_do_tabel(measure, clean_measure_data)
+    dodanie_danych_do_tabel(station, clean_station_data)
 
     # pobranie wszystkiego
     print("odczyt wszystkiego do LIMIT 5 z bazy")
@@ -140,16 +81,16 @@ if __name__ == "__main__":
     # pobranie w celu weryfikacji
     r = measure.select().where(measure.c.station == "USC00514830")
     result = engine.execute(r)
-    for i in result:
-        print("modyfikacja danych", i)
+    for r in result:
+        print("modyfikacja danych:", r)
 
     # przykładowe usunięcie
-    d = measure.delete().where(measure.c.station == "USC00514830")
+    d = measure.delete().where(measure.c.id == 2)
     result = engine.execute(d)
     # pobranie w celu weryfikacji
     r = measure.select().where(measure.c.station == "USC00514830")
     result = engine.execute(r)
-    if i in result:
-        print("nie usunięto", i)
+    if r in result:
+        print("nie usunięto", r)
     else:
         print("usunięto")
