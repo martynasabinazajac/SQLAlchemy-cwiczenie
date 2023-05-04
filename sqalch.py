@@ -1,14 +1,26 @@
 import csv
 import pandas as pd
-from sqlalchemy import create_engine, Table, Column, Integer, MetaData, String, Date, Float
+from sqlalchemy import (
+    create_engine,
+    Table,
+    Column,
+    Integer,
+    MetaData,
+    String,
+    Date,
+    Float,
+)
+
 
 # 1. Pobranie csv i przygotowanied anych z pliku:
 def pobieranie_pandas(plik):
-    df=pd.read_csv(plik)
-    df=df.to_dict('records')
+    df = pd.read_csv(plik)
+    df = df.to_dict("records")
     return df
 
+
 # Krok 3 Dodanie danych z csv do tabel
+
 
 # dodanie danych do tabel
 def dodanie_danych_do_tabel(tabela, dane):
@@ -20,8 +32,8 @@ def dodanie_danych_do_tabel(tabela, dane):
 
 if __name__ == "__main__":
     # pobranie danych z csv
-    clean_measure_data=pobieranie_pandas('clean_measure.csv')
-    clean_station_data=pobieranie_pandas('clean_stations.csv')
+    clean_measure_data = pobieranie_pandas("clean_measure.csv")
+    clean_station_data = pobieranie_pandas("clean_stations.csv")
     print(clean_measure_data, clean_station_data)
 
     # Krok 2 połaczenie i utworzenie tabel za pomocą sql alchemy
