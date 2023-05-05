@@ -23,7 +23,7 @@ def pobieranie_pandas(plik):
 
 
 # dodanie danych do tabel
-def dodanie_danych_do_tabel(tabela, dane):
+def dodanie_danych_do_tabel(tabela, dane, polaczenie):
     conn = engine.connect()
     ins = tabela.insert().values()
     result = conn.execute(ins, dane)
@@ -67,8 +67,8 @@ if __name__ == "__main__":
     print(engine.table_names())
 
     # dodanie danych do tabe- instert
-    dodanie_danych_do_tabel(measure, clean_measure_data)
-    dodanie_danych_do_tabel(station, clean_station_data)
+    dodanie_danych_do_tabel(measure, clean_measure_data, engine)
+    dodanie_danych_do_tabel(station, clean_station_data, engine)
 
     # pobranie wszystkiego
     print("odczyt wszystkiego do LIMIT 5 z bazy")
