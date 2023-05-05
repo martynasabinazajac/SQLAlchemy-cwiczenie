@@ -23,7 +23,7 @@ def pobieranie_pandas(plik):
 
 
 # dodanie danych do tabel
-def dodanie_danych_do_tabel(tabela, dane, polaczenie):
+def dodanie_danych_do_tabel(tabela, dane, engine):
     conn = engine.connect()
     ins = tabela.insert().values()
     result = conn.execute(ins, dane)
