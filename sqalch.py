@@ -87,22 +87,22 @@ if __name__ == "__main__":
     u = (
         measure.update()
         .where(measure.c.station == "USC00514830")
-        .values(precip="100.11")
+        .values(precip=100.11)
     )
     result = engine.execute(u)
     # pobranie w celu weryfikacji
     r = measure.select().where(measure.c.station == "USC00514830")
     result = engine.execute(r)
-    for r in result:
-        print("modyfikacja danych:", r)
+    for row in result:
+        print("modyfikacja danych:", row)
 
     # przykładowe usunięcie
-    d = measure.delete().where(measure.c.id == 2)
-    result = engine.execute(d)
+    # d = measure.delete().where(measure.c.id == 2)
+    # result = engine.execute(d)
     # pobranie w celu weryfikacji
-    r = measure.select().where(measure.c.station == "USC00514830")
+    r = measure.select().where(measure.c.id == 2)
     result = engine.execute(r)
-    if r in result:
-        print("nie usunięto", r)
+    if row in result:
+        print("nie usunięto", row)
     else:
         print("usunięto")
